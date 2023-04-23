@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 def get_image(longitude_input, latitude_input, scale_input,
-              scale_level_input, width_input, height_input, map_type_input):
+              scale_level_input, width_input, height_input, map_type_input, new):
     longitude_input, latitude_input, scale_input, scale_level_input, width_input, height_input, map_type_input = \
         map(str, (longitude_input, latitude_input, scale_input,
                   scale_level_input, width_input, height_input, map_type_input))
@@ -22,8 +22,11 @@ def get_image(longitude_input, latitude_input, scale_input,
         'll': f'{longitude_input},{latitude_input}',
         'l': map_type_input,
         'z': scale_level_input,
-        'size': f'{width_input},{height_input}'
+        'size': f'{width_input},{height_input}',
     }
+
+    if new:
+        params['pt'] = f'{longitude_input},{latitude_input},pm2dbm'
 
     response = requests.get(api_server, params=params)
 
@@ -40,6 +43,9 @@ class Maps(QMainWindow):
             button.clicked.connect(self.change_map_type)
             button.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.confirm_search.clicked.connect(self.search_place)
+        self.confirm_search.setFocusPolicy(QtCore.Qt.NoFocus)
+
         self.add_image()
 
     def change_map_type(self):
@@ -55,6 +61,32 @@ class Maps(QMainWindow):
             map_type = 'sat,skl'
 
         self.add_image()
+
+    def search_place(self):
+        global longitude, latitude
+
+        data = self.search.text()
+        out_format = 'json'
+
+        api_server = 'http://geocode-maps.yandex.ru/1.x'
+        api_key = "40d1649f-0493-4b70-98ba-98533de7710b"
+
+        params = {
+            'geocode': data,
+            'format': out_format,
+            'apikey': api_key
+        }
+
+        response = requests.get(api_server, params=params).json()
+
+        try:
+            longitude, latitude = map(float, response['response']['GeoObjectCollection']['featureMember'][
+                0]['GeoObject']['Point']['pos'].split())
+
+            self.add_image(new=True)
+
+        except (IndexError, KeyError):
+            pass
 
     def keyPressEvent(self, event):
         global scale_level, longitude, latitude
@@ -83,8 +115,11 @@ class Maps(QMainWindow):
 
         self.add_image()
 
-    def add_image(self):
-        get_image(longitude, latitude, scale, scale_level, width, height, map_type)
+    def mousePressEvent(self, event):
+        QApplication.focusWidget().clearFocus()
+
+    def add_image(self, new=False):
+        get_image(longitude, latitude, scale, scale_level, width, height, map_type, new)
         pixmap = QPixmap('../map.png')
         self.image.setPixmap(pixmap)
 
