@@ -29,14 +29,14 @@ def get_image(longitude_input, latitude_input, scale_input):
 class Maps(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('../Maps.ui', self)
+        uic.loadUi('Maps.ui', self)
 
         self.add_image()
 
     def add_image(self):
         get_image(longitude, latitude, scale)
         pixmap = QPixmap('../map.png')
-        self.label.setPixmap(pixmap)
+        self.image.setPixmap(pixmap)
 
 
 if __name__ == '__main__':

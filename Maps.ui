@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="image">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -25,6 +25,39 @@
    <property name="text">
     <string/>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>220</y>
+     <width>160</width>
+     <height>83</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="table_of_types_of_map">
+    <item>
+     <widget class="QPushButton" name="scheme">
+      <property name="text">
+       <string>Схема</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="satellite">
+      <property name="text">
+       <string>Спутник</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="hybrid">
+      <property name="text">
+       <string>Гибрид</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

@@ -10,15 +10,17 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
-def get_image(longitude_input, latitude_input, scale_input, scale_level_input, width_input, height_input):
-    longitude_input, latitude_input, scale_input, scale_level_input, width_input, height_input = \
-        map(str, (longitude_input, latitude_input, scale_input, scale_level_input, width_input, height_input))
+def get_image(longitude_input, latitude_input, scale_input,
+              scale_level_input, width_input, height_input, map_type_input):
+    longitude_input, latitude_input, scale_input, scale_level_input, width_input, height_input, map_type_input = \
+        map(str, (longitude_input, latitude_input, scale_input,
+                  scale_level_input, width_input, height_input, map_type_input))
 
     api_server = 'http://static-maps.yandex.ru/1.x'
 
     params = {
         'll': f'{longitude_input},{latitude_input}',
-        'l': 'map',
+        'l': map_type_input,
         'z': scale_level_input,
         'size': f'{width_input},{height_input}'
     }
@@ -33,6 +35,24 @@ class Maps(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('Maps.ui', self)
+
+        self.scheme.clicked.connect(self.change_map_type)
+        self.satellite.clicked.connect(self.change_map_type)
+        self.hybrid.clicked.connect(self.change_map_type)
+
+        self.add_image()
+
+    def change_map_type(self):
+        global map_type
+
+        if self.sender().text() == 'Схема':
+            map_type = 'map'
+
+        elif self.sender().text() == 'Спутник':
+            map_type = 'sat'
+
+        elif self.sender().text() == 'Гибрид':
+            map_type = 'sat,skl'
 
         self.add_image()
 
@@ -64,13 +84,12 @@ class Maps(QMainWindow):
         self.add_image()
 
     def add_image(self):
-        get_image(longitude, latitude, scale, scale_level, width, height)
+        get_image(longitude, latitude, scale, scale_level, width, height, map_type)
         pixmap = QPixmap('../map.png')
         self.image.setPixmap(pixmap)
 
 
 dictionary_of_z_and_spn = {value: 0.002 * 2 ** (17 - value) for value in range(18)}
-
 
 if __name__ == '__main__':
     longitude = 38.910410
@@ -79,6 +98,7 @@ if __name__ == '__main__':
     scale_level = 12
     width = 650
     height = 450
+    map_type = 'map'
 
     application = QApplication(sys.argv)
     window = Maps()
