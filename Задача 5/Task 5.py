@@ -7,7 +7,7 @@ from PIL import Image
 from PyQt5 import uic, QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit
 
 
 def get_image(longitude_input, latitude_input, scale_input,
@@ -116,7 +116,12 @@ class Maps(QMainWindow):
         self.add_image()
 
     def mousePressEvent(self, event):
-        QApplication.focusWidget().clearFocus()
+        focused_widget = QApplication.focusWidget()
+
+        if isinstance(focused_widget, QLineEdit):
+            focused_widget.clearFocus()
+
+        QMainWindow.mousePressEvent(self, event)
 
     def add_image(self, new=False):
         get_image(longitude, latitude, scale, scale_level, width, height, map_type, new)

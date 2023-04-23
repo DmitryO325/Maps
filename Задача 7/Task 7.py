@@ -44,6 +44,10 @@ class Maps(QMainWindow):
         self.confirm_search.clicked.connect(self.search_place)
         self.confirm_search.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.reset.clicked.connect(self.reset_marks)
+        self.reset.setFocusPolicy(QtCore.Qt.NoFocus)
+
+
         self.add_image()
 
     def change_map_type(self):
@@ -86,6 +90,12 @@ class Maps(QMainWindow):
 
         except (IndexError, KeyError):
             pass
+
+    def reset_marks(self):
+        global marks
+        marks = []
+
+        self.add_image()
 
     def keyPressEvent(self, event):
         global scale_level, longitude, latitude
