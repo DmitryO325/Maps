@@ -1,3 +1,4 @@
+import pprint
 import sys
 import requests
 
@@ -64,7 +65,7 @@ class Maps(QMainWindow):
         self.add_image()
 
     def search_place(self):
-        global longitude, latitude
+        global longitude, latitude, address
 
         data = self.search.text()
         out_format = 'json'
@@ -84,16 +85,24 @@ class Maps(QMainWindow):
             longitude, latitude = map(float, response['response']['GeoObjectCollection']['featureMember'][
                 0]['GeoObject']['Point']['pos'].split())
 
+            address = response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
+                'metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+
             marks.append((longitude, latitude))
+
+            self.address.setText(address)
             self.add_image()
 
         except (IndexError, KeyError):
             pass
 
     def reset_marks(self):
-        global marks
+        global marks, address
+
+        address = ''
         marks = []
 
+        self.address.clear()
         self.add_image()
 
     def keyPressEvent(self, event):
@@ -138,6 +147,7 @@ class Maps(QMainWindow):
 
 
 marks = []
+address = ''
 dictionary_of_z_and_spn = {value: 0.002 * 2 ** (17 - value) for value in range(18)}
 
 if __name__ == '__main__':
