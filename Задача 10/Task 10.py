@@ -47,6 +47,8 @@ class Maps(QMainWindow):
         self.reset.clicked.connect(self.reset_marks)
         self.reset.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.postal_code.stateChanged.connect(self.change_postal_code)
+
         self.add_image()
 
     def change_map_type(self):
@@ -64,7 +66,7 @@ class Maps(QMainWindow):
         self.add_image()
 
     def search_place(self):
-        global longitude, latitude, address
+        global longitude, latitude, address, postal_code
 
         data = self.search.text()
         out_format = 'json'
@@ -85,16 +87,19 @@ class Maps(QMainWindow):
                 0]['GeoObject']['Point']['pos'].split())
 
             address = response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
-                'metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+                           'metaDataProperty']['GeocoderMetaData']['Address']['formatted']
 
-            if 'postal_code' in response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
-                    'metaDataProperty']['GeocoderMetaData']['Address'] and self.postal_code.isChecked():
-                address += f""", {response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
-                    'metaDataProperty']['GeocoderMetaData']['Address']['postal_code']}"""
+            try:
+                postal_code = response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
+                    'metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+
+            except KeyError:
+                postal_code = ''
+
+            self.change_postal_code()
 
             marks.append((longitude, latitude)) if (longitude, latitude) not in marks else ...
 
-            self.address.setText(address)
             self.add_image()
 
         except (IndexError, KeyError):
@@ -108,6 +113,10 @@ class Maps(QMainWindow):
 
         self.address.clear()
         self.add_image()
+
+    def change_postal_code(self):
+        self.address.setText(f'{address}, {postal_code}'
+                             if self.postal_code.isChecked() and postal_code else address)
 
     def keyPressEvent(self, event):
         global scale_level, longitude, latitude
@@ -151,7 +160,7 @@ class Maps(QMainWindow):
 
 
 marks = []
-address = ''
+address = postal_code = ''
 dictionary_of_z_and_spn = {value: 0.002 * 2 ** (17 - value) for value in range(18)}
 
 if __name__ == '__main__':
