@@ -1,3 +1,4 @@
+import pprint
 import sys
 import requests
 
@@ -44,6 +45,9 @@ class Maps(QMainWindow):
         self.confirm_search.clicked.connect(self.search_place)
         self.confirm_search.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.reset.clicked.connect(self.reset_marks)
+        self.reset.setFocusPolicy(QtCore.Qt.NoFocus)
+
         self.add_image()
 
     def change_map_type(self):
@@ -61,7 +65,7 @@ class Maps(QMainWindow):
         self.add_image()
 
     def search_place(self):
-        global longitude, latitude
+        global longitude, latitude, address
 
         data = self.search.text()
         out_format = 'json'
@@ -81,11 +85,30 @@ class Maps(QMainWindow):
             longitude, latitude = map(float, response['response']['GeoObjectCollection']['featureMember'][
                 0]['GeoObject']['Point']['pos'].split())
 
-            marks.append((longitude, latitude))
+            address = response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
+                'metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+
+            if 'postal_code' in response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
+                    'metaDataProperty']['GeocoderMetaData']['Address'] and self.postal_code.isChecked():
+                address += f""", {response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject'][
+                    'metaDataProperty']['GeocoderMetaData']['Address']['postal_code']}"""
+
+            marks.append((longitude, latitude)) if (longitude, latitude) not in marks else ...
+
+            self.address.setText(address)
             self.add_image()
 
         except (IndexError, KeyError):
             pass
+
+    def reset_marks(self):
+        global marks, address
+
+        address = ''
+        marks = []
+
+        self.address.clear()
+        self.add_image()
 
     def keyPressEvent(self, event):
         global scale_level, longitude, latitude
@@ -129,6 +152,7 @@ class Maps(QMainWindow):
 
 
 marks = []
+address = ''
 dictionary_of_z_and_spn = {value: 0.002 * 2 ** (17 - value) for value in range(18)}
 
 if __name__ == '__main__':

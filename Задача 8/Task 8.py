@@ -1,4 +1,3 @@
-import pprint
 import sys
 import requests
 
@@ -8,7 +7,7 @@ from PIL import Image
 from PyQt5 import uic, QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 def get_image(longitude_input, latitude_input, scale_input,
@@ -135,7 +134,7 @@ class Maps(QMainWindow):
     def mousePressEvent(self, event):
         focused_widget = QApplication.focusWidget()
 
-        if isinstance(focused_widget, QLineEdit):
+        if isinstance(focused_widget, type(self.search)):
             focused_widget.clearFocus()
 
         QMainWindow.mousePressEvent(self, event)
